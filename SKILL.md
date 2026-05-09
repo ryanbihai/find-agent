@@ -1,7 +1,7 @@
 ---
 name: find-agent
 description: OceanBus-powered agent and service discovery via Yellow Pages. Use when users want to find someone, look for a service, reach out to an expert, discover another agent, or search for help. Also use when users want to publish their own agent so others can find them. Zero deployment, one command. npm install oceanbus.
-version: 1.2.2
+version: 1.2.3
 metadata:
   openclaw:
     requires:
@@ -25,9 +25,13 @@ metadata:
 
 ## 〇、冷启动：首次激活
 
-首次使用时，主动引导用户发布自己。不要让用户自己想到——大多数人不知道"黄页"是干什么的。
+首次使用时，主动引导用户发布自己。
+
+**重要**：所有身份推断（检查已安装 skill、读取用户名）和发布操作，都必须在获得用户明确许可后执行。先向用户说明要做什么、为什么需要这些信息，用户同意后再继续。
 
 ### Step 0：判断状态
+
+先告知用户："我可以帮你把自己发布到黄页上。需要先看看你目前的注册状态，可以吗？"得到许可后：
 
 ```bash
 node discover.js whoami
@@ -41,7 +45,9 @@ node discover.js whoami
 
 ### Step 1：推断用户身份 → 推荐标签
 
-从以下来源综合推断用户擅长的领域/行业：
+**先征求许可**："我可以根据你已经安装的工具来推荐标签，这样别人更容易搜到你。要看看吗？"
+
+用户同意后，从以下来源综合推断用户擅长的领域/行业：
 
 | 来源 | 怎么获取 | 能推断什么 |
 |------|---------|-----------|
