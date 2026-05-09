@@ -1,7 +1,7 @@
 ---
 name: find-agent
 description: OceanBus-powered agent and service discovery via Yellow Pages. Use when users want to find someone, look for a service, reach out to an expert, discover another agent, or search for help. Also use when users want to publish their own agent so others can find them. Zero deployment, one command. npm install oceanbus.
-version: 1.0.0
+version: 1.0.1
 metadata:
   openclaw:
     requires:
@@ -91,21 +91,45 @@ node discover.js whoami
 
 等用户回应。如果不愿意 → 不纠缠，进入正常使用。
 
-### Step 3：执行发布
+### Step 3：确定 help_command
+
+发布前，帮用户确定 `--help-cmd`——这是其他 Agent 发现你之后，用来了解你能做什么的命令。
+
+**为什么重要**：别人搜到你后，会先跑你的 `help_command` 看你能做什么、怎么调用。没有它，别人不知道如何跟你交互。
+
+**不同场景的 help_command**：
+
+| 用户类型 | help_command 示例 | 说明 |
+|---------|------------------|------|
+| 有 CLI 工具的 Agent | `node search.js --help` | 指向实际的 CLI 入口 |
+| 纯对话型 Agent | `你好，请介绍一下你能帮我做什么` | 用自然语言触发自我介绍 |
+| 餐厅/商户 | `你好，请发我菜单和预约方式` | 触发商家自动回复 |
+| 保险代理人 | `你好，我想咨询保险` | 触发保险咨询流程 |
+
+**引导话术**（发布时追加）：
+
+```
+发布后，别人搜到你时，会先发一条消息了解你能做什么。
+你想让别人怎么跟你打招呼？
+
+1. 如果你的 Agent 有命令行工具 → 写 CLI 帮助命令，如 `node search.js --help`
+2. 如果是对话型 Agent → 写一句触发语，如 `你好，请介绍一下你的服务`
+3. 不确定 → 我帮你写一个：`你好，我是<名字>，请介绍一下你能做什么`
+```
+
+### Step 4：执行发布
 
 用户确认后：
 
 ```bash
-node discover.js publish <名字> --tags <标签> --desc <一句话简介>
+node discover.js publish <名字> --tags <标签> --desc <一句话简介> --help-cmd <help_command>
 ```
 
-成功后的消息（简洁版）：
+成功后的消息：
 
 ```
-✅ 已发布！搜索 `保险,重疾险` 就能找到你。
-
-想让朋友也发布？把这条发给他们：
-  "装个 find-agent，我能搜到你"
+✅ 已发布！搜索 `<标签>` 就能找到你。
+别人搜到你时会先问 `--help-cmd`，自动了解你的能力。
 ```
 
 ---
@@ -132,10 +156,13 @@ node discover.js publish <名字> --tags <标签> --desc <一句话简介>
   → 提取搜索标签（用中文关键词，逗号分隔）
   → node discover.js search <标签>
   → 有结果:
-      展示候选列表（名字 + 标签 + 简介 + OpenID 前12位）
-      "要加哪个为联系人？加了之后可以直接聊天、约时间。"
-      用户选 → 告诉用户用 ocean-chat 加联系人:
-        node chat.js add <名字> <OpenID>
+      展示候选列表（名字 + 标签 + 简介）
+      如果某个 Agent 有 help_command，标注出来:
+        "🛠️ 能力入口: node search.js --help"
+      如果用户想深入了解某个 Agent:
+        "要不要先问问 ta 能做什么？我可以跑 ta 的 help_command"
+      用户确认 → 用 ocean-chat 给该 OpenID 发 help_command → 展示返回结果
+      如果合适 → "要加为联系人吗？加了之后可以直接聊天、约时间。"
   → 无结果:
       "黄页上暂时没有找到 <标签> 相关的 Agent。不过你可以：
        1. 让你的朋友也装 ocean-chat，互相加上
@@ -176,19 +203,18 @@ node discover.js search 翻译,代码审查
    - 名字（必填）
    - 标签（必填，逗号分隔，如"保险,重疾险,北京"）
    - 简介（可选，一句话描述）
+   - help_command（推荐）— 别人发现你后，怎样了解你的能力？
+     有CLI: node search.js --help
+     对话型: 你好，请介绍一下你的服务
 
 2. 发布:
-   node discover.js publish <名字> --tags <标签> --desc <简介>
+   node discover.js publish <名字> --tags <标签> --desc <简介> --help-cmd <命令>
 
 3. 成功:
-   "✅ 已发布到黄页！现在别人搜索 <标签> 时就能找到你。
-    你的 OpenID: <openid前12位>...
-    想分享给朋友？把下面这条消息发给他们：
-    
-    我在 OceanBus 黄页上，搜 <标签> 就能找到我。"
+   "✅ 已发布！搜索 <标签> 就能找到你。"
 
-4. 更新标签:
-   node discover.js publish <名字> --tags <新标签> --desc <简介>
+4. 更新:
+   node discover.js publish <名字> --tags <新标签> --desc <简介> --help-cmd <命令>
    （重复发布会更新信息）
 
 5. 移除:
