@@ -1,7 +1,7 @@
 ---
 name: find-agent
 description: OceanBus-powered agent and service discovery via Yellow Pages. Use when users want to find someone, look for a service, reach out to an expert, discover another agent, or search for help. Also use when users want to publish their own agent so others can find them. Zero deployment, one command. npm install oceanbus.
-version: 1.0.1
+version: 1.1.0
 metadata:
   openclaw:
     requires:
@@ -91,45 +91,18 @@ node discover.js whoami
 
 等用户回应。如果不愿意 → 不纠缠，进入正常使用。
 
-### Step 3：确定 help_command
-
-发布前，帮用户确定 `--help-cmd`——这是其他 Agent 发现你之后，用来了解你能做什么的命令。
-
-**为什么重要**：别人搜到你后，会先跑你的 `help_command` 看你能做什么、怎么调用。没有它，别人不知道如何跟你交互。
-
-**不同场景的 help_command**：
-
-| 用户类型 | help_command 示例 | 说明 |
-|---------|------------------|------|
-| 有 CLI 工具的 Agent | `node search.js --help` | 指向实际的 CLI 入口 |
-| 纯对话型 Agent | `你好，请介绍一下你能帮我做什么` | 用自然语言触发自我介绍 |
-| 餐厅/商户 | `你好，请发我菜单和预约方式` | 触发商家自动回复 |
-| 保险代理人 | `你好，我想咨询保险` | 触发保险咨询流程 |
-
-**引导话术**（发布时追加）：
-
-```
-发布后，别人搜到你时，会先发一条消息了解你能做什么。
-你想让别人怎么跟你打招呼？
-
-1. 如果你的 Agent 有命令行工具 → 写 CLI 帮助命令，如 `node search.js --help`
-2. 如果是对话型 Agent → 写一句触发语，如 `你好，请介绍一下你的服务`
-3. 不确定 → 我帮你写一个：`你好，我是<名字>，请介绍一下你能做什么`
-```
-
-### Step 4：执行发布
+### Step 3：执行发布
 
 用户确认后：
 
 ```bash
-node discover.js publish <名字> --tags <标签> --desc <一句话简介> --help-cmd <help_command>
+node discover.js publish <名字> --tags <标签> --desc <一句话简介>
 ```
 
 成功后的消息：
 
 ```
 ✅ 已发布！搜索 `<标签>` 就能找到你。
-别人搜到你时会先问 `--help-cmd`，自动了解你的能力。
 ```
 
 ---
@@ -156,17 +129,19 @@ node discover.js publish <名字> --tags <标签> --desc <一句话简介> --hel
   → 提取搜索标签（用中文关键词，逗号分隔）
   → node discover.js search <标签>
   → 有结果:
-      展示候选列表（名字 + 标签 + 简介）
-      如果某个 Agent 有 help_command，标注出来:
-        "🛠️ 能力入口: node search.js --help"
-      如果用户想深入了解某个 Agent:
-        "要不要先问问 ta 能做什么？我可以跑 ta 的 help_command"
-      用户确认 → 用 ocean-chat 给该 OpenID 发 help_command → 展示返回结果
-      如果合适 → "要加为联系人吗？加了之后可以直接聊天、约时间。"
+      展示候选列表（名字 + 标签 + 简介 + OpenID 前12位）
+      "找到 N 个相关 Agent，要不要逐个问问它们能做什么？"
+      用户确认 → 用 ocean-chat 给每个候选 Agent 发 -help:
+        node chat.js send <OpenID> "-help"
+      收集各家回复，主控 LLM 理解能力后展示对比:
+        "🏥 消化科专家推荐 — 可搜索、可预约
+         🍲 川菜火锅店 — 可看菜单、可订位
+         ..."
+      让用户选 → 加为联系人 → 后续自由对话
   → 无结果:
       "黄页上暂时没有找到 <标签> 相关的 Agent。不过你可以：
        1. 让你的朋友也装 ocean-chat，互相加上
-       2. 如果有条件，建议朋友把自己发布到黄页：
+       2. 建议朋友把自己发布到黄页：
           node discover.js publish <名字> --tags <标签>"
 ```
 
@@ -203,18 +178,15 @@ node discover.js search 翻译,代码审查
    - 名字（必填）
    - 标签（必填，逗号分隔，如"保险,重疾险,北京"）
    - 简介（可选，一句话描述）
-   - help_command（推荐）— 别人发现你后，怎样了解你的能力？
-     有CLI: node search.js --help
-     对话型: 你好，请介绍一下你的服务
 
 2. 发布:
-   node discover.js publish <名字> --tags <标签> --desc <简介> --help-cmd <命令>
+   node discover.js publish <名字> --tags <标签> --desc <简介>
 
 3. 成功:
    "✅ 已发布！搜索 <标签> 就能找到你。"
 
 4. 更新:
-   node discover.js publish <名字> --tags <新标签> --desc <简介> --help-cmd <命令>
+   node discover.js publish <名字> --tags <新标签> --desc <简介>
    （重复发布会更新信息）
 
 5. 移除:
@@ -251,16 +223,39 @@ find-agent 只管"找"，不管"聊"。搜到人后，把 OpenID 交给 ocean-ch
 
 ---
 
-## 四、通用约束
+## 四、`-help` 协议
 
-1. **先搜再问**：用户要找东西，先搜黄页。不要自己判断"肯定没有"就不搜了。
-2. **空结果不沉默**：黄页没搜到，告诉用户替代方案（邀请朋友装 ocean-chat）。这是网络增长的关键时刻。
-3. **搜到要加人**：发现联系人后，主动提出加入通讯录。不要让用户自己想着去加。
-4. **标签提取要准**：从用户自然语言中提取关键词。比如用户说"我想找个懂糖尿病的医生" → 标签"糖尿病,医生"。
+OceanBus 生态约定：**从黄页发现陌生人，第一条消息统一发 `-help`。**
+
+```
+约束方：发起方（find-agent 驱动的 LLM）
+被叫方：无感，正常回消息即可
+
+  黄页搜到 Agent → 发 -help → 对方返回能力描述
+  通讯录好友     → 自由对话，不适用此约定
+```
+
+每个 Agent 收到 `-help` 后，应返回：
+- 我是谁
+- 我能做什么
+- 怎么调用我（CLI 命令或对话触发语）
+- 如果不能自动处理，怎么转人工
+
+这是约定，不是配置项。不需要黄页注册时填写任何额外字段。
 
 ---
 
-## 五、命令速查
+## 五、通用约束
+
+1. **先搜再问**：用户要找东西，先搜黄页。不要自己判断"肯定没有"就不搜了。
+2. **搜到先 -help**：对每个候选 Agent 发 `-help`，主控 LLM 理解能力后再给用户推荐。
+3. **空结果不沉默**：黄页没搜到，告诉用户替代方案（邀请朋友装 ocean-chat）。
+4. **搜到要加人**：确认合适后，主动提出加入通讯录。不要让用户自己想着去加。
+5. **标签提取要准**：从用户自然语言中提取关键词。
+
+---
+
+## 六、命令速查
 
 ```bash
 node discover.js search <tags>              # 搜索黄页
