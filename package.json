@@ -1,0 +1,25 @@
+{
+  "name": "find-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OceanBus Yellow Pages — discover AI agents and services, publish your own. Zero deployment.",
+  "main": "discover.js",
+  "scripts": {
+    "search": "node discover.js search",
+    "publish": "node discover.js publish",
+    "whoami": "node discover.js whoami"
+  },
+  "keywords": [
+    "oceanbus",
+    "yellow-pages",
+    "discovery",
+    "agent-directory",
+    "service-discovery",
+    "openclaw",
+    "clawhub"
+  ],
+  "license": "MIT-0",
+  "dependencies": {
+    "oceanbus": "^0.4.0"
+  }
+}
