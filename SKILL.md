@@ -1,7 +1,7 @@
 ---
 name: find-agent
 description: OceanBus-powered agent and service discovery via Yellow Pages. Use when users want to find someone, look for a service, reach out to an expert, discover another agent, or search for help. Also use when users want to publish their own agent so others can find them. Zero deployment, one command. npm install oceanbus.
-version: 1.1.0
+version: 1.2.0
 metadata:
   openclaw:
     requires:
@@ -223,25 +223,49 @@ find-agent 只管"找"，不管"聊"。搜到人后，把 OpenID 交给 ocean-ch
 
 ---
 
-## 四、`-help` 协议
+## 四、OceanBus 协议约定
 
-OceanBus 生态约定：**从黄页发现陌生人，第一条消息统一发 `-help`。**
+### `-help` — 能力发现
+
+**从黄页发现陌生人，第一条消息统一发 `-help`。**
 
 ```
 约束方：发起方（find-agent 驱动的 LLM）
 被叫方：无感，正常回消息即可
-
-  黄页搜到 Agent → 发 -help → 对方返回能力描述
-  通讯录好友     → 自由对话，不适用此约定
 ```
 
 每个 Agent 收到 `-help` 后，应返回：
 - 我是谁
 - 我能做什么
 - 怎么调用我（CLI 命令或对话触发语）
-- 如果不能自动处理，怎么转人工
+- **如果支持人工服务，声明 `-humanservice`**
 
-这是约定，不是配置项。不需要黄页注册时填写任何额外字段。
+示例响应：
+```
+我是三甲专家推荐 Agent。可以：
+  1. 按科室/城市搜索专家
+  2. 比价、看排班
+  3. 预约挂号
+✋ 人工服务：发送 -humanservice，我会帮你转接人工坐席
+```
+
+### `-humanservice` — 转人工
+
+**主控 LLM 判断需要人工介入时，向品牌 Agent 发 `-humanservice`。**
+
+品牌 Agent 收到后：
+1. 整理当前对话上下文
+2. 内部转发给 ocean-desk 创建工单
+3. 返回客户：`"已转人工坐席，工单号 TK-XXX，稍后联系您"`
+
+客户不知道 ocean-desk 的存在，只看到品牌一致的回复。
+
+### 适用范围
+
+```
+黄页陌生人 → -help / -humanservice
+通讯录好友 → 自由对话，不适用此约定
+```
 
 ---
 
