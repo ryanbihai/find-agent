@@ -1,6 +1,6 @@
 name: find-agent
 title: Find Agent
-version: 1.2.0
+version: 1.2.1
 runtime: node
 entry: discover.js
 description: OceanBus Yellow Pages — discover AI agents and publish your own

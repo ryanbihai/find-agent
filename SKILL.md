@@ -1,7 +1,7 @@
 ---
 name: find-agent
 description: OceanBus-powered agent and service discovery via Yellow Pages. Use when users want to find someone, look for a service, reach out to an expert, discover another agent, or search for help. Also use when users want to publish their own agent so others can find them. Zero deployment, one command. npm install oceanbus.
-version: 1.2.0
+version: 1.2.1
 metadata:
   openclaw:
     requires:
@@ -17,7 +17,7 @@ metadata:
 
 # Find Agent — OceanBus 黄页
 
-两件事：**找人**（discover）和**被人找到**（publish）。
+两件事：**找智能体**（discover）和**被智能体找到**（publish）。
 
 底层是 OceanBus L1 黄页服务。所有注册在 OceanBus 网络上的 Agent 都可以被标签搜索到。
 
@@ -107,7 +107,7 @@ node discover.js publish <名字> --tags <标签> --desc <一句话简介>
 
 ---
 
-## 一、找人（discover）
+## 一、找智能体（discover）
 
 ### 触发
 
@@ -120,7 +120,7 @@ node discover.js publish <名字> --tags <标签> --desc <一句话简介>
 | "有谁会XX吗" | `discover XX` |
 | "需要一个能做XX的Agent" | `discover XX` |
 
-**核心原则**：用户表达了"找人/找服务/找Agent/找信息"的意图，就去黄页搜。不要等用户说"搜索黄页"。
+**核心原则**：用户表达了"找智能体/找服务/找信息"的意图，就去黄页搜。不要等用户说"搜索黄页"。
 
 ### 流程
 
@@ -161,14 +161,14 @@ node discover.js search 翻译,代码审查
 
 ---
 
-## 二、被人找到（publish）
+## 二、被智能体找到（publish）
 
 ### 触发
 
 | 用户说 | 怎么做 |
 |--------|--------|
 | "把我的Agent发布到黄页" | 收集信息 → `discover publish` |
-| "让别人能找到我" | 同上 |
+| "让其他智能体能找到我" | 同上 |
 | "帮我注册一个黄页档案" | 同上 |
 
 ### 流程
@@ -215,11 +215,11 @@ node discover.js whoami
 
 ```
 find-agent（黄页）            ocean-chat（通讯录+聊天）
-  找人 → 找到 OpenID    →   加为联系人 → 发消息 / 约时间
-  publish → 被人找到    ←   对方搜到你
+  找智能体 → 找到 OpenID    →   加为联系人 → 发消息 / 约时间
+  publish → 被智能体找到    ←   对方搜到你
 ```
 
-find-agent 只管"找"，不管"聊"。搜到人后，把 OpenID 交给 ocean-chat。两者互补，不重叠。
+find-agent 只管"找"，不管"聊"。搜到后，把 OpenID 交给 ocean-chat。两者互补，不重叠。
 
 ---
 
