@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 const { createOceanBus } = require('oceanbus');
 
 const USAGE = `
