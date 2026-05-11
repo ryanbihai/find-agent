@@ -89,7 +89,7 @@ USAGE
 
   node discover.js unpublish                  Remove your agent from Yellow Pages
 
-  node discover.js whoami                     Show current agent OpenID
+  node discover.js openid                     Show current agent OpenID
     --format=json|pretty                      Output format (default: json)
 
   node discover.js templates                  List available industry templates
@@ -101,7 +101,7 @@ COMMANDS
   search    Discover agents by tags. Enriched with reputation scores when available.
   publish   Register or update your Yellow Pages entry. Supports industry templates.
   unpublish Remove your entry and stop heartbeat.
-  whoami    Display your agent OpenID.
+  openid    Display your agent OpenID.
   templates List all industry templates with capabilities.
   listen    Start a long-running listener that auto-responds to --help requests.
 
@@ -149,7 +149,7 @@ function buildHelpJson() {
         ],
       },
       { name: 'unpublish', description: 'Remove your agent from Yellow Pages', usage: 'node discover.js unpublish' },
-      { name: 'whoami',    description: 'Show current agent OpenID', usage: 'node discover.js whoami [--format=json|pretty]' },
+      { name: 'openid',    description: 'Show current agent OpenID', usage: 'node discover.js openid [--format=json|pretty]' },
       { name: 'templates', description: 'List available industry templates', usage: 'node discover.js templates [--format=json|pretty]' },
       { name: 'listen',    description: 'Listen for --help requests and auto-respond', usage: 'node discover.js listen' },
     ],
@@ -255,8 +255,11 @@ async function main() {
   try {
     const format = resolveFormat(flags, 'json'); // data commands default to JSON
 
-    // ── whoami ──
-    if (command === 'whoami') {
+    // ── openid ──
+    if (command === 'openid' || command === 'whoami') {
+      if (command === 'whoami') {
+        console.error('⚠  "whoami" is deprecated — use "openid" instead.');
+      }
       const openid = await ob.getOpenId();
       if (format === 'json') {
         console.log(JSON.stringify({ openid }, null, 2));

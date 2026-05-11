@@ -51,7 +51,7 @@ node discover.js search 火锅,设计
 node discover.js publish 张三 --tags 保险,重疾险 --desc "10年保险代理人"
 
 # 4. 查看身份
-node discover.js whoami
+node discover.js openid
 ```
 
 > 📖 **深度阅读**：[SKILL.md](./SKILL.md) — LLM 行为指南、搜索流程、发布流程
