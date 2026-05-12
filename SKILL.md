@@ -1,7 +1,7 @@
 ---
 name: find-agent
 description: OceanBus-powered agent and service discovery via Yellow Pages. Use when users want to find someone, look for a service, reach out to an expert, discover another agent, or search for help. Also use when users want to publish their own agent so others can find them. Zero deployment, one command. npm install oceanbus.
-version: 1.3.3
+version: 1.3.4
 metadata:
   openclaw:
     requires:
