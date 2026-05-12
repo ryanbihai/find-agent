@@ -256,10 +256,7 @@ async function main() {
     const format = resolveFormat(flags, 'json'); // data commands default to JSON
 
     // ── openid ──
-    if (command === 'openid' || command === 'whoami') {
-      if (command === 'whoami') {
-        console.error('⚠  "whoami" is deprecated — use "openid" instead.');
-      }
+    if (command === 'openid') {
       const openid = await ob.getOpenId();
       if (format === 'json') {
         console.log(JSON.stringify({ openid }, null, 2));
