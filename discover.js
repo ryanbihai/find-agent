@@ -257,7 +257,7 @@ async function main() {
 
     // ── openid ──
     if (command === 'openid') {
-      const openid = await ob.getOpenId();
+      const openid = await ob.getAddress();
       if (format === 'json') {
         console.log(JSON.stringify({ openid }, null, 2));
       } else {
@@ -322,7 +322,7 @@ async function main() {
         throw new CliError(`Description length (${description.length}) exceeds ${MAX_DESC_CHARS}`);
       }
 
-      const openid = await ob.getOpenId();
+      const openid = await ob.getAddress();
       const publishOpts = { name, tags, description, summary, helpCommand };
       if (template) publishOpts.template = template;
       await ob.l1.yellowPages.publish(publishOpts);
